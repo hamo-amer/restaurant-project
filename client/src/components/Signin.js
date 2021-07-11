@@ -1,8 +1,12 @@
 import React,{useState,Fragment} from 'react'
 import {Form,InputGroup,FormControl,Button} from 'react-bootstrap'
+import isEmail from 'validator/lib/isEmail';
+import isEmpty from 'validator/lib/isEmpty';
 import {Link} from "react-router-dom"
 import {ErrorMessage} from "../helpers/message"
 import {ShowLoading} from "../helpers/loading"
+import {signin} from "../api/auth"
+import {setAuthentification} from '../helpers/auth'
 
 
 function Signin() {
@@ -19,7 +23,22 @@ function Signin() {
       }
       const handleSubmit=e=>{
         e.preventDefault()
+        if(isEmpty(email)||isEmpty(password)){
+          setFormData({...formData,errorMsg:"All fields are required"})
+        }else if(!isEmail(email)){
+          setFormData({...formData,errorMsg:"invalid Email"})
+        } else{
+        // Success
+        const {email,password}=formData
+        const data={email,password}
+        setFormData({...formData,loading:true})
+        signin(data).then(res=>{
+          setAuthentification(res.data.token,res.data.user)
+        }).catch(err=>{
+          console.log('signin function setAuth error',err)
+        })
       }
+    }
     return (
         <Fragment>
        
